@@ -12,10 +12,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
-
-import os
-import firebase_admin
-from firebase_admin import credentials
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -81,15 +78,14 @@ WSGI_APPLICATION = 'attendance_log.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'attendance_log',
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
-
-
-FIREBASE_SERVICE_ACCOUNT_KEY_PATH = os.path.join(BASE_DIR, 'D:\\me\\backend\\django_projects\\attendance_log\\attendance-log-7-firebase-adminsdk-pi5yu-67f0aba9b7.json')
-cred = credentials.Certificate(FIREBASE_SERVICE_ACCOUNT_KEY_PATH)
-firebase_admin.initialize_app(cred)
 # Application definition
 
 REST_FRAMEWORK = {
@@ -127,6 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = 'authentication.User'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
