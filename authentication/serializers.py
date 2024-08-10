@@ -1,28 +1,60 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
 
-from .models import Role
-from .enums import RoleChoice
+from .models import Role, User, User_Role, User_Institute
+from institution.models import Institution
 
-class UserSerializer(serializers.Serializer):
-    username = serializers.CharField(max_length = 255)
-    email = serializers.EmailField()
-    password = serializers.CharField(max_length = 255)
-    role = serializers.CharField(max_length = 255)
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = ['id', 'role']
+
+
+class UserRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User_Role
+        fields = ['user', 'role']
+
+
+class UserInstituteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User_Institute
+        fields = ['user', 'institute']
+
+
+class UserSerializer(serializers.ModelSerializer):
+    role = serializers.PrimaryKeyRelatedField(queryset=Role.objects.all())
+    institute = serializers.PrimaryKeyRelatedField(
+        queryset=Institution.objects.all())
+
+    class Meta:
+        model = User
+        fields = ['name', 'email', 'password',
+                  'registration', 'role', 'institute']
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
+
+    def validate_role(self, value):
+        if not Role.objects.filter(id=value.id).exists():
+            raise serializers.ValidationError("Role does not exist.")
+        return value
+
+    def validate_institute(self, value):
+        if not Institution.objects.filter(id=value.id).exists():
+            raise serializers.ValidationError("Institute does not exist.")
+        return value
 
     def create(self, validated_data):
-        try:
-            user = User.objects.filter(email = validated_data['email'])[0]
-            if not user:
-                user = User.objects.create_user(
-                    username=validated_data['username'],
-                    email=validated_data['email'],
-                    password=validated_data['password'],
-                )
-            Role.objects.create(
-                user = user,
-                role = RoleChoice(validated_data['role']).name
-            )
-            raise serializers.ValidationError("")
-        except Exception as e:
-            raise serializers.ValidationError(f"Error creating user: {str(e)}")
+        role = validated_data.pop('role')
+        institute = validated_data.pop('institute')
+
+        user = User(**validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+
+        User_Role.objects.create(user=user, role=role)
+
+        User_Institute.objects.create(user=user, institute=institute)
+
+        return user

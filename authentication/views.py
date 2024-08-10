@@ -18,7 +18,7 @@ class Access_token_validation(APIView):
         return Response(content, content_type='application/json')
 
 
-class UserCreateView(APIView):
+class SignUp(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
