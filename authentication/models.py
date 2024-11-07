@@ -1,13 +1,12 @@
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser
 
-from .enums import RoleChoice
 from .manager import UserManager
 from institution.models import Institution
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser):
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=255)
     registration = models.CharField(max_length=255, blank=True)
@@ -24,7 +23,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Role(models.Model):
-    role = models.CharField(max_length=255, choices=RoleChoice.choices)
+    role = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.role

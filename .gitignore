@@ -192,3 +192,7 @@ media
 
 #firebase
 *.json
+
+#project specific
+v.py
+constants.py
