@@ -4,13 +4,10 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from os import listdir, remove
-from os.path import isfile, join, splitext
-from PIL import Image
-from pillow_heif import register_heif_opener
+from os.path import isfile, join
 
 import re
 import requests
-import numpy as np
 from imutils import paths
 import face_recognition
 from deepface import DeepFace
