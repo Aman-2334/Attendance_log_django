@@ -15,6 +15,14 @@ class UserSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = '__all__'
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        data.pop('password', None)
+        data.pop('is_staff', None)
+        data.pop('is_superuser', None)
+        return data
+
     def create(self, validated_data):
         User = get_user_model()
         user = User(
