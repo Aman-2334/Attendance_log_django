@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import InstitutionView
+from . import views
 
 urlpatterns = [
-    path("",InstitutionView.as_view()),
+    path("", views.InstitutionView.as_view()),
+    path("admin", views.getInstitutionAdmin),
 ]

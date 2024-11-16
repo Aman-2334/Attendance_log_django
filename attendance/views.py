@@ -18,7 +18,7 @@ import cv2
 import os
 import json
 import shutil
-from .constants import allStudents
+from constants import allStudents
 from .serializers import OnlineAttendanceSerializer
 
 encodings = []
