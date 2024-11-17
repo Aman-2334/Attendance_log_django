@@ -1,14 +1,16 @@
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
+
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from institution.models import Institution
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from institution.serializers import InstitutionSerializer, AdminSerializer, TeacherSerializer, StudentSerializer
 from rest_framework import status
+from rest_framework.viewsets import ModelViewSet
 
+from institution.models import Institution, Subject
+from institution.serializers import InstitutionSerializer, AdminSerializer, TeacherSerializer, StudentSerializer, SubjectSerializer
 from authentication.models import Role
 from constants import ErrorMessage
 
@@ -65,3 +67,11 @@ def get_institution_student(request, id):
     except Exception as e:
         print("Get Institution Student exception caught: ",e)
         return Response(ErrorMessage.get_error_response(),status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+class SubjectViewSet(ModelViewSet):
+    serializer_class = SubjectSerializer
+    def get_queryset(self):
+        institution_id = self.kwargs.get('institution_id') 
+        return Subject.objects.filter(institution_id = institution_id)
+    
