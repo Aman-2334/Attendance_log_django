@@ -12,6 +12,7 @@ from rest_framework import status
 
 from .serializers import UserSerializer
 from .models import User
+from constants import ErrorMessage
 
 
 class Access_token_validation(APIView):
@@ -65,12 +66,14 @@ class User_View(APIView):
     def delete(self, request, id):
         try:
             user = User.objects.filter(pk=id)
-            user.delete()
-            return Response({"details": "User deleted Successfully!"}, status=status.HTTP_200_OK)
+            if user:
+                user.delete()
+                return Response({"details": "User deleted Successfully!"}, status=status.HTTP_200_OK)
+            else:
+                return Response(ErrorMessage("No such user found!").get_error_response(), status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             print("Exception Raised -> User delete request -> ", e)
             return Response({"details": e}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-
 
 class signin_view(APIView):
     authentication_classes = []
