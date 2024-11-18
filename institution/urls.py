@@ -3,11 +3,13 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 router = DefaultRouter()
-router.register(r"(?P<institition_id>\d+)/subject", views.SubjectViewSet, basename='Subject')
+router.register(r"(?P<institution_id>\d+)/subject", views.SubjectViewSet, basename='Subject')
 
 urlpatterns = [
     path("", views.InstitutionView.as_view()),
-    path("<int:id>/admin", views.get_institution_admin),
-    path("<int:id>/teacher", views.get_institution_teacher),
-    path("<int:id>/student", views.get_institution_student),
+    path("<int:id>/admin/", views.get_institution_admin),
+    path("<int:id>/teacher/", views.get_institution_teacher),
+    path("<int:id>/student/", views.get_institution_student),
 ]
+
+urlpatterns +=  router.urls

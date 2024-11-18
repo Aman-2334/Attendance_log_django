@@ -1,7 +1,8 @@
+from django.contrib.auth import get_user_model
+
 from rest_framework import serializers
 
 from .models import Institution, Subject
-from django.contrib.auth import get_user_model
 
 class InstitutionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,11 +27,11 @@ class StudentSerializer(serializers.ModelSerializer):
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
-        fields = '__all__'
+        exclude=['student']
     
     def to_representation(self, instance):
         data = super().to_representation(instance)
         User = get_user_model()
-        data['instructor'] = TeacherSerializer(User.objects.get(pk = data['instructor_id'])).data
-        data.pop('instructor_id')
+        data['instructor'] = TeacherSerializer(User.objects.get(pk = data['instructor'])).data
         return data
+    

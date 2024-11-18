@@ -12,7 +12,7 @@ class Institution(models.Model):
 class Subject(models.Model):
     subject_name = models.CharField(max_length=512)
     subject_code = models.CharField(max_length=512)
-    insititution = models.ForeignKey(
+    institution = models.ForeignKey(
         Institution, on_delete=models.CASCADE, related_name="subject_in_institution")
     instructor = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING, related_name="subject_instructor")
@@ -22,7 +22,7 @@ class Subject(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['subject_code', 'insititution'],
+                fields=['subject_code', 'institution'],
                 name='unique_subject_in_institution'
             )
         ]
