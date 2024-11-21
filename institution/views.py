@@ -13,7 +13,7 @@ from rest_framework.viewsets import ModelViewSet
 from institution.models import Institution, Subject
 from institution.serializers import InstitutionSerializer, AdminSerializer, TeacherSerializer, StudentSerializer, SubjectSerializer
 from authentication.models import Role
-from constants import ErrorMessage
+from helper import ErrorMessage
 
 class InstitutionView(APIView):
     authentication_classes = [JWTAuthentication]

@@ -6,6 +6,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializers import OnlineAttendanceSerializer, AttendanceSessionSerializer
+from .models import AttendanceSession
+from helper import ErrorMessage, get_Attendance_Image_Directory
+from constants import allStudents
 
 from os import listdir, remove
 from os.path import isfile, join
@@ -22,7 +25,6 @@ import cv2
 import os
 import json
 import shutil
-from constants import allStudents, ErrorMessage
 
 encodings = []
 encoding_name = []
@@ -363,6 +365,23 @@ class AttendanceSessionView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
 
+    def get(self, request, id=None):
+        try:
+            if id:
+                session = AttendanceSession.objects.get(pk=id)
+                serializer = AttendanceSessionSerializer(session)
+            else:
+                session = AttendanceSession.objects.all()
+                serializer = AttendanceSessionSerializer(session, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except AttendanceSession.DoesNotExist:
+            print(
+                "Attendance Session view exception caught : attendance session doesnt exist")
+            return Response(ErrorMessage("No session found !").get_error_response(), status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print("Attendance Session view get session exception caught ", e)
+        return Response(ErrorMessage("Some Error occured").get_error_response(), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def post(self, request):
         try:
             serializer = AttendanceSessionSerializer(data=request.data)
@@ -370,5 +389,45 @@ class AttendanceSessionView(APIView):
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
+            print("Attendance Session view post session exception caught ", e)
+        return Response(ErrorMessage("Some Error occured").get_error_response(), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def put(self, request, id):
+        try:
+            session = AttendanceSession.objects.get(id=id)
+            serializer = AttendanceSessionSerializer(
+                session, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        except AttendanceSession.DoesNotExist:
+            print(
+                "Attendance Session view put session exception caught : attendance session doesnt exist")
+            return Response(ErrorMessage("No session found !").get_error_response(), status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
             print("Attendance Session view exception caught ", e)
+        return Response(ErrorMessage("Some Error occured").get_error_response(), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def delete(self, request, id):
+        try:
+            session = AttendanceSession.objects.get(pk=id)
+            if session:
+                session_image_dir = get_Attendance_Image_Directory(
+                    session=session)
+                shutil.rmtree(session_image_dir)
+                session_image_dir = os.path.dirname(session_image_dir)
+                while True:
+                    try:
+                        os.rmdir(session_image_dir)
+                        session_image_dir = os.path.dirname(session_image_dir)
+                    except OSError:
+                        break
+                session.delete()
+            return Response(status=status.HTTP_200_OK)
+        except AttendanceSession.DoesNotExist:
+            print(
+                "Attendance Session view exception caught : attendance session doesnt exist")
+            return Response(ErrorMessage("No session found !").get_error_response(), status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print("Attendance Session view delete session exception caught ", e)
         return Response(ErrorMessage("Some Error occured").get_error_response(), status=status.HTTP_500_INTERNAL_SERVER_ERROR)

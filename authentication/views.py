@@ -12,7 +12,7 @@ from rest_framework import status
 
 from .serializers import UserSerializer
 from .models import User
-from constants import ErrorMessage
+from helper import ErrorMessage
 
 
 class Access_token_validation(APIView):

@@ -34,3 +34,11 @@ class AttendanceSessionSerializer(serializers.ModelSerializer):
             AttendanceImages.objects.create(
                 attendance_session=attendance_session, image=image)
         return attendance_session
+
+    def update(self, instance, validated_data):
+        uploaded_images = validated_data.pop('uploaded_images', [])
+        instance = super().update(instance=instance, validated_data=validated_data)
+        for image in uploaded_images:
+            AttendanceImages.objects.create(
+                attendance_session=instance, image=image)
+        return instance
