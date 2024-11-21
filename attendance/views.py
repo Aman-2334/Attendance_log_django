@@ -1,16 +1,17 @@
-from django.shortcuts import render
+from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django_eventstream import send_event
 from .serializers import OnlineAttendanceSerializer, AttendanceSessionSerializer
 from .models import AttendanceSession
 from helper import ErrorMessage, get_Attendance_Image_Directory
 from constants import allStudents
 
-from os import listdir, remove
+from os import listdir
 from os.path import isfile, join
 
 import re
@@ -360,12 +361,20 @@ class OnlineAttendanceView(APIView):
         return identified_student
 
 
+def send_sse_event(request, message):
+    user = request.user
+    channel = f"user-{user.get_username()}"
+    print("channel: ", channel)
+    send_event(channel, "message", message)
+
+
 class AttendanceSessionView(APIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser]
 
     def get(self, request, id=None):
+        send_sse_event(request, {'message': 'This is an SSE message'})
         try:
             if id:
                 session = AttendanceSession.objects.get(pk=id)
@@ -422,7 +431,7 @@ class AttendanceSessionView(APIView):
                         session_image_dir = os.path.dirname(session_image_dir)
                     except OSError:
                         break
-                session.delete()
+                # session.delete()
             return Response(status=status.HTTP_200_OK)
         except AttendanceSession.DoesNotExist:
             print(
