@@ -360,7 +360,6 @@ class OnlineAttendanceView(APIView):
         print(f"Not Present: {notPresent}")
         return identified_student
 
-
 def send_sse_event(request, message):
     user = request.user
     channel = f"user-{user.get_username()}"
@@ -439,4 +438,4 @@ class AttendanceSessionView(APIView):
             return Response(ErrorMessage("No session found !").get_error_response(), status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             print("Attendance Session view delete session exception caught ", e)
-        return Response(ErrorMessage("Some Error occured").get_error_response(), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(ErrorMessage("Some Error occured").get_error_response(), status=status.HTTP_500_INTERNAL_SERVER_ERROR)  
